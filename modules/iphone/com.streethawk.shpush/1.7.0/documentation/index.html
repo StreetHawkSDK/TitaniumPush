@@ -1,0 +1,117 @@
+<h1>Push Module</h1>
+<h2>Description</h2>
+<p>StreetHawk's Push module lets you send push messages to your application. Depending on your application's current state, if your application in foreground, the push notification overlays on the current screen as a notification dialog with user to take action and for application in background, the SDK generates a notification in notification bar. Push module also supports custom dialog. </p>
+<h2>Accessing the Push Module</h2>
+<p>To access this module from JavaScript, you would do the following:</p>
+<pre><code>var shPush = require("com.streethawk.Push");
+</code></pre>
+<p>The shPush variable is a reference to the Module object.</p>
+<h2>Reference</h2>
+<p>https://streethawk.freshdesk.com/solution/articles/12000000940-push</p>
+<h3>push.function</h3>
+<ul>
+<li>
+<p>Register notification</p>
+<p>// Check if the device is running iOS 8 or later
+if (Ti.Platform.name == "iPhone OS" &amp;&amp; parseInt(Ti.Platform.version.split(".")[0]) &gt;= 8) 
+{
+    function registerForPush() 
+    {
+        Ti.Network.registerForPushNotifications( {
+            success: deviceTokenSuccess,
+            error: deviceTokenError,
+            callback: receivePush  //needs to register this otherwise App crash due to [TiApp application:didReceiveRemoteNotification:]: unrecognized selector.
+        });
+        // Remove event listener once registered for push notifications
+        Ti.App.iOS.removeEventListener('usernotificationsettings', registerForPush); 
+    }; 
+    // Wait for user settings to be registered before registering for push notifications
+    Ti.App.iOS.addEventListener('usernotificationsettings', registerForPush);
+} 
+else 
+{
+    // For iOS 7 and earlier
+    Ti.Network.registerForPushNotifications({
+        // Specifies which notifications to receive
+        types: [
+                Ti.Network.NOTIFICATION_TYPE_BADGE,
+                Ti.Network.NOTIFICATION_TYPE_ALERT,
+                Ti.Network.NOTIFICATION_TYPE_SOUND
+                ],
+        success: deviceTokenSuccess,
+        error: deviceTokenError,
+        callback: receivePush  //needs to register this otherwise App crash due to [TiApp application:didReceiveRemoteNotification:]: unrecognized selector.
+    });
+}</p>
+<p>// Process incoming push notifications
+function receivePush(e) 
+{
+    //No need to call "shPush.handleRemoteNotification(e);", StreetHawk auto-integration automatically handle this.
+}</p>
+<p>// Save the device token for subsequent API calls
+function deviceTokenSuccess(e) 
+{
+    var deviceToken = e.deviceToken;
+    Ti.API.info("Push notification device token is: "+ deviceToken);
+    //No need to call "shPush.setApnsDeviceToken(deviceToken);", StreetHawk auto-integration automatically handle this.
+}</p>
+<p>function deviceTokenError(e) 
+{
+    alert('Failed to register for push notifications! ' + e.error);
+}</p>
+</li>
+<li>
+<p>Callback for handle json notification</p>
+<p>function jsonCallback(e)
+{
+    alert("Callback for json notification:\nTitle: " + e.title + "\nMessage: " + e.message + "\nJson: " + e.json);
+}
+//Register json callback to StreetHawk SDK
+shPush.shRawJsonCallback({rawjson: jsonCallback}); //must use key "rawjson"</p>
+</li>
+<li>
+<p>Callback for handle push data</p>
+<p>function pushdataCallback(e)
+{
+    Ti.API.warn("Callback for push data:\nAction: " + e.action + "\nMsgId: " + e.msgid + "\nTitle: " + e.title + "\nMessage: " + e.message + "\nData: " + e.data + "\nPortion: " + e.portion + "\nOrientation: " + e.orientation + "\nSpeed: " + e.speed + "\nSound: " + e.sound + "\nBadge: " + e.badge + "\nDisplaywihtoutdialog: " + e.displaywihtoutdialog);
+    shPush.sendPushResult(e.msgid, 1); //let continue as accept
+}
+//Register push data callback to StreetHawk SDK
+shPush.pushDataCallback({pushdata: pushdataCallback}); //must use key "pushdata"</p>
+</li>
+<li>
+<p>Callback for handle push result</p>
+<p>function pushresultCallback(e)
+{
+    alert("Callback for push result:\nResult: " + e.result + "\nAction: " + e.action + "\nMsgId: " + e.msgid + "\nTitle: " + e.title + "\nMessage: " + e.message + "\nData: " + e.data + "\nPortion: " + e.portion + "\nOrientation: " + e.orientation + "\nSpeed: " + e.speed + "\nSound: " + e.sound + "\nBadge: " + e.badge + "\nDisplaywihtoutdialog: " + e.displaywihtoutdialog);<br />
+}
+//Register push result callback to StreetHawk SDK
+shPush.pushResultCallback({pushresult: pushresultCallback}); //must use key "pushresult"</p>
+</li>
+<li>
+<p>Register load page callback to StreetHawk SDK</p>
+<p>//Callback for Titanium App to load page for remote notification launch activity. Currently it shows page name, not actually load the page.
+function loadpageCallback(e)
+{
+    alert("Callback to show page: " + e.page);
+}
+shPush.shRegisterViewCallback({loadpage: loadpageCallback}); //must use key "loadpage"</p>
+</li>
+</ul>
+<h3>push.property</h3>
+<ul>
+<li>
+<p>Set or get enable notification service by default</p>
+<p>shPush.defaultNotificationService = false;
+var isEnabledByDefault = shPush.defaultNotificationService;</p>
+</li>
+<li>
+<p>Set or get current enable notification service</p>
+<p>shPush.notificationEnabled = true;
+var isEnabled = shPush.notificationEnabled;</p>
+</li>
+</ul>
+<h2>Author</h2>
+<p>support@streethawk.com</p>
+<h2>License</h2>
+<p>Apache</p>
