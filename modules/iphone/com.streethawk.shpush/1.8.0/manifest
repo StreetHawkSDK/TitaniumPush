@@ -2,7 +2,7 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 1.7.0
+version: 1.8.0
 apiversion: 2
 architectures: armv7 arm64 i386 x86_64
 description: StreetHawk's Push Module lets you send push messages to your application. Depending on your application's current state, if your application in foreground, the push notification overlays on the current screen as a notification dialog with user to take action and for application in background, the SDK generates a notification in notification bar. Push modules also support custom dialog.
